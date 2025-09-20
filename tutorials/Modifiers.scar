@@ -1,0 +1,52 @@
+﻿----------------------------------------------------------------------------------------------------------------
+-- SCAR Example Modifiers script
+-- (c) 2004 Relic Entertainment Inc.
+--
+-- This script demonstrates how to apply / remove modifiers
+--
+-- This example will double the sight radius of all force commanders, librarians, 
+-- scouts and servitors for a player.
+--
+
+
+squad_list = 
+{
+    "force_commander",
+    "librarian",
+    "scout_marine",
+    "servitor",
+}
+
+modifiers = {}
+
+-- do for all squad types in squad_list
+for i=1,table.getn( squad_list ) do
+
+    -- create the modifier
+    local modifier = Modifier_Create(
+        MAT_SquadType,                  -- This modifier will be applied to a squad blueprint
+        "sight_radius_modifier",    -- Modify entity sight radius
+        MUT_Multiplication,                 -- Multiply sight radius by 2 non exclusive
+        false, 
+        2.0, 
+        squad_list[i]                       -- Do this to all squads of type...
+    )
+    
+    -- Apply it to the player
+    -- Save the result of this function so we can remove the modifiers
+    modifiers[i] = Modifier_ApplyToPlayer( modifier, g_Player1 )
+
+end 
+
+
+-- Thats it, the modifiers will be applied to the player.
+
+-- You could then call this function when you wanted to remove the modifiers from the player
+function RemoveTheModifiers() 
+    -- Remove each stored modifier
+    for i=1,table.getn( modifiers ) do
+        Modifier_Remove( modifiers[i] )
+    end
+end
+
+

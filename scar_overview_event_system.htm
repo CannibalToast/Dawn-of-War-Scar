@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+<head>
+<title>SCAR Documentation - Event System</title>
+<link rel="stylesheet" type="text/css" href="scardoc.css">
+<style type="text/css">:link        { color: blue }
+:visited     { color: purple }
+</style>
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+</head>
+
+<body>
+
+<h1>Event System</h1>
+<h2>Introduction</h2>
+<p>The Event System was implemented primarily for the creation of NIS's. NIS stands for <i>Non-Interactive Sequence</i>,
+also known as a scripted in-game cinematic. The essential element of an NIS is that certain things must happen in a <i>linear
+order</i>. Unlike functions in a game script, or *.scar file, where numerous conditions are being evaluated
+simultaneously, in an NIS we often want a single or set of functions to evaluate completely before advancing on to the
+next step.</p>
+<p>Examples would be calling a camera animation or a speech event. It would be undesirable to have all of the defined
+cameras for an NIS playing all at once. For proper presentation, each camera should appear in turn allowing for the
+cinematic flow.</p>
+<p>This is the essence of the Event System; to control the flow of the functions and keep things progressing in an
+ordered fashion.</p>
+<h2>Defining an Event</h2>
+<p>Events have been offloaded from the *.scar file into the *.nis file so as to separate the two drastically different
+styles of functions and make the system more usable.</p>
+<p>Within Dawn of War there are two main types of Events; the previously highlighted NIS's and the Intel Events. Intel
+Events in Dawn of War are in-game messages that do not take control away from the player but are still structured in the
+same linear manner as NIS's, and therefore are still Events.</p>
+<h3>Priorities</h3>
+<p>NISlets and Intel Events have different priortities when started with Event_Start. The utility functions
+Util_StartNISlet and Util_StartIntel simply call Event_Start with priorities 0 for NISlet and 1 for Intel events. In the
+event system, the highest priority is given to 0.</p>
+<p>When playing events, the following rules apply</p>
+<p>1) If you are starting an event that has higher priority than the current event, then the current event will be
+skipped.</p>
+<p>2) If you are starting an event that has a lower or equal priority than the current event, then the new event will be
+queued.</p>
+<p>3) Events are queued based on their priorities, so higher priorities will always play before low priorities</p>
+<p>4) Skipping an event using Esc will only skip the current event, so if there are more events in the queue, the esc
+key will have to get pressed for each of them</p>
+<p>This means that if you start a NISlet while an Intel event is playing, the intel event will be skipped, and the
+NISlet will start; however, if you start an Intel event while a NISlet is playing, the Intel event will be queued to
+play when it gets a chance.</p>
+<h2>The Table and the Controller</h2>
+<p>Since Events are a special type of system they are defined and structured in a way different than any other functions
+in Dawn of War scripts.</p>
+<h3>Defining an Event</h3>
+<p>At the top of the *.nis file we define an Events table. Like so:</p>
+<pre>
+EVENTS = { }</pre>
+<p>*<i>NOTE - Tables are Lua elements that contain an array of data. For more information follow the referred to Lua
+links.</i></p>
+<p>Each Event is actually a function that is added to the Events table as it is defined.</p>
+<pre>EVENTS.IE_OpeningSpeech = function( )
+  CTRL.Actor_PlaySpeech( ACT.Macha, 726000 )
+  CTRL.WAIT()
+end
+</pre>
+<p>*<i>NOTE - by prefacing the function name [ IE_OpeningSpeech ] with [ EVENTS. ] we are adding it to the table.</i></p>
+<p>We then call the functions through the special Utility functions Util_StartNIS( ) and Util_StartIntel( ) for the
+appropriate type of Event.</p>
+<h3>Controller</h3>
+<p>In the above example, the prefix [ CTRL. ] is added on to two functions. The CTRL prefix is what allows the Event to
+flow in a linear, step order. When a function is called through the controller and is followed by the [ CTRL.WAIT( ) ]
+it means that the evaluation will not go beyond the <i>Wait</i> point until the preceding functions have completed their
+function.</p>
+<pre>
+CTRL.Speech_Play( &quot;Hello&quot; )
+CTRL.WAIT( )
+CTRL.Event_Delay( 2 )
+CTRL.WAIT( )
+CTRL.Speech_Play( &quot;How are you?&quot; )
+CTRL.WAIT( )
+</pre>
+<p>This example would present a text message &quot;Hello&quot;, then wait for two seconds before showing &quot;How are
+you?&quot;.</p>
+<h2>Available Functions</h2>
+<p>Not every function can be called with the controller prefix. Only certain functions have been created so that they
+return the appropriate &quot;I'm done&quot; message that let's the CTRL.WAIT( ) know that it's ok to advance. A Fatal
+Scar error will occur when an invalid function has been called with a controller prefix, at which point the SCAR will
+quit evaluating.</p>
+<h3>Some of the Available Functions</h3>
+<ul type="disc">
+    <li>W40k_Letterbox( )</li>
+    <li>CPath_Start( )</li>
+    <li>CPath_CutToPath( )</li>
+    <li>W40k_PlaySpeech( )</li>
+    <li>Camera_FocusOnTargetPos( )</li>
+    <li>Camera_FocusOnTargetSGroup( )</li>
+    <li>Camera_FocusOnTargetEGroup( )</li>
+    <li>Camera_FocusOnTargetMarker( )</li>
+    <li>Anim_PlayEntityAnim( )</li>
+    <li>Anim_PlayEGroupAnim( )</li>
+    <li>Anim_PlaySquadAnim( )</li>
+    <li>Anim_PlaySGroupAnim( )</li>
+    <li>Anim_PlaySyncAnim( )</li>
+</ul>
+
+</body>
+
+</html>

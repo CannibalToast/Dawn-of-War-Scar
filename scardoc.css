@@ -1,0 +1,101 @@
+body {
+	background-color: #FFFFCC;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #333333;
+	border: 0px;
+}
+
+a {
+	color: #330000;
+}
+
+form {
+	background-color: #CCCC99;
+}
+
+.title {
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size: 16px;
+	line-height: 30px;
+	color: #FFFFFF;
+	font-weight: bold;
+	background-color: #990000;
+}
+
+.subtitle {
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size: 16px;
+	line-height: 20px;
+	font-weight: bold;
+  color: #660000; font-style: oblique;
+}
+
+.tabletitle {
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size: 14px;
+	line-height: 20px;
+	color: #FFFFFF;
+	font-weight: bold;
+	background-color: #990000;
+}
+
+.tablesubtitle{
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size: 12px;
+	font-weight: bold;
+	background-color: #CCCC66;
+}
+
+.header {
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size: 24px;
+	background-color: #990000;
+  color: #FFFF66;
+}
+
+a:hover {
+	color: #DEDECA;
+	background-color: #330000;
+}
+
+.arg {
+	font-style: italic;
+	color: #CC3300;
+
+}
+.function {
+	font-weight: bold;
+
+}
+.funcdesc {
+}
+.squadbasetrooper {
+	font-style: italic;
+	color: #000099;
+}
+.squadupgrade {
+	font-style: italic;
+	color: #990000;
+}
+.health {
+	font-style: italic;
+	color: #008800;
+}
+.exampletable{
+	background-color: #000000;
+}
+.examplebody{
+	font-family: Courier;
+	font-size:10px;
+	line-height:12px;
+	background-color: #DDDDDD;
+}
+.exampletitle {
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size: 14px;
+	line-height: 20px;
+	color: #FFFFFF;
+	font-weight: bold;
+	background-color: #990000;
+}

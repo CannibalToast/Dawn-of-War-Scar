@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+<head>
+<title>SCAR Documentation - Scripting</title>
+<link href="scardoc.css" rel="stylesheet" type="text/css">
+<style type="text/css">:link        { color: blue }
+:visited     { color: purple }
+</style>
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+</head>
+
+<body>
+
+<h1>Scripting</h1>
+<p>Scripting in SCAR relies on many conventions to keep scripts useable for a wide range of users. Amongst some of the
+conventions are high level elements like file structure and organization and very low level conventions like ensuring
+you name things in a similar manner for consistency across multiple scripts.</p>
+<p>To maintain usability, the action content of *.scar files (the part of the script that makes 'things' happen in the
+game world) is broken down into two basic components; functions and Rules.</p>
+<h2>Lua</h2>
+<p>We use Lua as our scripting language.
+<p class="c1"><b>LUA homepage</b> - <a href="http://lua-users.org/wiki/">http://lua-users.org/wiki/</a></p>
+<h2>Functions</h2>
+<p class="c1">A function is a predefined action that can be called in a script. They can either set values within the
+game or return information about the game. Then can be used in conjunction with Lua arguments to create script logic.
+Scardoc forms the library of functions from which Rules can be composed. If the a desired function does not reside in
+Scardoc, chances are, it can not be performed via script in game.</p>
+<p class="c1">For clarity, functions are often given prefixes to help identify what kind of action they are meant to
+perform. Some examples:</p>
+<p class="c1">· Cmd_ - a command function</p>
+<p class="c1">· Cpu_ - an AI function</p>
+<p class="c1">· SGroup_ - an squad group function</p>
+<p class="c1">· Util_ - a utility function designed to facilitate a set of sub functions</p>
+<h2>Rules</h2>
+<p>A Rule is simply a user-defined function that, once &quot;added&quot;, is then evaluated by the game every interval.
+The Rule is added by using the Rule_Add( &quot;name of Rule&quot; ) function, and passing in the name of the Rule that
+you wish to add. The interval that the Rule is evaluated at can either be the default (every frame) or can be set (every
+x seconds), using the Rule_AddInterval function in place of the Rule_Add. The interval can be defined on a per-Rule
+basis, allowing you to specify a different interval for every Rule that you have.</p>
+<p>For example, if we wanted a Rule that printed out &quot;Hello world!&quot; to the console every frame, we would have
+something along the lines of:</p>
+<pre>-- add the Rule_HelloWorld to the queue of Rules being evaluated
+-- here the Rule_HelloWorld function is defined, in the LUA standard
+Rule_Add( Rule_HelloWorld )
+
+function Rule_HelloWorld()
+  print( &quot;Hello world!&quot; )
+end</pre>
+<p>This will then print the words &quot;Hello world!&quot; to the console every frame.</p>
+<p>Once a Rule has been added, every interval the contents of that Rule will be executed by the game. If the first
+statement in a Rule is a conditional, such as an <i>if</i> statement, this will ensure that the Rule is only executed
+once the conditions are met.</p>
+<p>Lets use a conditional statement to print the words &quot;Hello World!&quot; only when the player is of the race
+Eldar.</p>
+<pre>Rule_Add( Rule_HelloWorld )
+
+function Rule_HelloWorld()
+  -- use the Player_GetRace function to determine if player 0 is Hiigaran
+  if ( Player_GetRace( 0 ) == &quot;elder_race&quot; ) then
+    print( &quot;Hello world!&quot; )
+    Rule_Remove( Rule_HelloWorld )
+  end
+end</pre>
+<p>Notice the call that's being made to Rule_Remove. This removes the Rule from the queue, meaning that it will not be
+evaluated on the next interval. If you don't remove the Rule after it has been used, it will continue to be evaluated
+every specified interval. By adding the Rule_Remove, we ensure that this Rule will only be executed once whenever it's
+conditional statement is met.</p>
+<p>A Rule can be removed at any stage during your script, but it will not be completely removed until the next Interval.
+So if you remove a Rule in the middle of the Rule, the remaining calls of that Rule will still be executed in this
+Interval.</p>
+<p>This looks good, but what happens if the player's ID isn't 0, or perhaps there are multiple players and we want to
+check each one? We can wrap our conditional statement in a <i>for</i> loop, which will then go through every player in
+the game and check to see if they are Eldar or not.</p>
+<pre>Rule_Add( Rule_HelloWorld )
+
+function Rule_HelloWorld()
+  -- we use the for loop, an functionality provided by Lua
+  for i=1,Universe_PlayerCount() do
+    if ( Player_GetRace( i ) == &quot;elder_race&quot; ) then
+      print( &quot;Hello world!&quot; )
+    end
+    -- once all players are checked, remove this rule
+    if ( i == Universe_PlayerCount() ) then
+      Rule_Remove( Rule_HelloWorld )
+    end
+  end
+end</pre>
+<p>In this Rule, the <i>for</i> loop checks every player in the game to see if they are Eldar, printing &quot;Hello
+World!&quot; if they are. When the loop iterator (i) is equal to the number of players, the Rule is removed.</p>
+<p>See how quickly a very simple Rule can turn into a very useful one? This is the inherent power of SCAR. At its most
+basic level, it can be quite functional. However by applying some more advanced scripting techniques, it will quickly
+become a powerful and versatile tool.</p>
+<p>As you can see, a Rule is simply a function. The only thing that makes it a Rule is we append it with Rule_ (this is
+simply a naming convention employed for clarity) and the fact that it is &quot;added&quot; to the list of Rules being
+evaluated as opposed to called directly from the script. This means that you can also create simple functions inside
+your script to enable you to perform repetitive functions, instead of needing to have dozens of Rules all performing the
+same function.</p>
+<p class="c1">Here is another example:</p>
+<pre>--here we're going to add the rule in every 30 seconds Rule_AddInterval( Rule_GivePlayerMoney, 30 )
+function Rule_GivePlayerMoney( )
+
+  --this checks to see how much requisition the indicated player has 
+
+  if Player_GetResource(playerID, RT_Requisition) &lt; 1000 then
+
+    Player_AddResource(playerID, RT_Requisition, 500)
+
+  else
+    Rule_Remove(Rule_GivePlayerMoney )
+
+  end
+end</pre>
+<p class="c1">This example, if implemented, would check every 30 seconds to see how much Requisition the indicated
+player had. If the amount is less than 1000 units it will add 500 more on. If the player has more than 1000 Requisition
+points, the Rule will remove itself.</p>
+<p class="c5">*NOTE - By creating an 'autoexec.lua' file in your Warhammer\Root directory and inserting the command line
+[ dofile(&quot;Dev/ScarDebugBindings.lua&quot;) ] you can call up the SCAR Rule Profiler in-game by using the hot-key
+CTRL + P.</p>
+<h2>Concepts</h2>
+<h3>Entity, Entity Blueprint, Squad, Squad Blueprint</h3>
+<ul type="disc">
+    <li>An <b>Entity</b> represents a single unit or building: player 1's hq</li>
+    <li>An <b>Entity Blueprint</b> represents the type of an Entity: space marines hq</li>
+    <li>A <b>Squad</b> is a group of 1 or more Entity working together, usually anything that moves. Entities within a
+        squad can not be ordered individually.</li>
+    <li>A <b>Squad Blueprint</b> represents the type of a Squad: space marines tactical bolter squad.</li>
+</ul>
+<h3>Commonly Used Game Terms</h3>
+<p>The following is a selection of terms, strings, and variables that are frequently requested by and referred to in
+SCAR files.</p>
+<ul type="disc">
+    <li><b>player ID</b> - the variable defined at the start of a script by <b><i>Setup_Player( index, &quot;player_name&quot;,
+        &quot;race name&quot;, team)</i></b></li>
+    <li><b>entity or entity blueprint -</b> A string value defining an entity. *NOTE - the term <i>entity</i> is used to
+        describe both the element the comprises the base unit of any in-game object AND used to describe structures and
+        other static world elements.<br>
+        *<i>Sorry for any confusion, the context will usually determine the appropriate meaning of a reference to Entity</i></li>
+    <li><b>squad or squad blueprint</b> - A string value created by the Attribute Editor that defines a type of squad,
+        such as [ &quot;space_marine_squad_tactical&quot; ]. *NOTE - for purposes of function, even a single 'unit' like
+        a tank is still defined as a <i>squad</i>. Example:</li>
+    <li><b>egroup name</b> - A string value associated with an Entity Group, [ &quot;eg_playerbase&quot; ] . This must
+        be defined via the Mission Editor or a SCAR function like <i>EGroup_CreateIfNotFound( )</i>. An <i>Entity Group</i>
+        is any grouping of tech tree buildings or world objects. Squads assigned to egroups will automatically be
+        filtered out.</li>
+    <li><b>egroup ID</b> - The underlying ID value that the egroup name is associated with. Sometimes this is requested
+        instead of the string name. Use the function <i>EGroup_FromName( )</i>to derive an ID when one isn't known.</li>
+    <li><b>sgroup name</b> - A string value associated with a Squad Group, [ &quot;sg_playerarmy&quot; ] . This must be
+        defined via the Mission Editor or a SCAR function like <i>Util_CreateSquadsAtPosition( )</i>. A <i>Squad Group</i>
+        is any grouping of squads. Entities assigned to sgroups will automatically be filtered out.</li>
+    <li><b>sgroup ID</b> - The underlying ID value that the sgroup name is associated with. Sometimes this is requested
+        instead of the string name. Use the function <i>SGroup_FromName( )</i>to derive an ID when one isn't known.</li>
+    <li><b>weapon or weapon blueprint</b> - A string name associated with an Attribute Editor defined weapon type, [
+        &quot;space_marine_flamer_tactical&quot; ]. For squads this information can be found in Scardoc but for a
+        complete list look in Dawn of War\W40K\Data\Attrib\Weapon</li>
+    <li><b>race name -</b> A string name associated with an Attribute Editor defined race types. Found in Dawn of
+        War\W40K\Data\Attrib\RaceBPs.</li>
+    <li><b>research name</b> - A string name associated with an Attribute Editor defined research type. Found in Dawn of
+        War\W40K\Data\Attrib\Research</li>
+    <li><b>addon name</b> - A string name associated with an Attribute Editor defined building addition type. Found in
+        Dawn of War\W40K\Data\Attrib\Addons</li>
+    <li><b>ability name -</b> A string name associated with an Attribute Editor defined entity ability type. Found in
+        Dawn of War\W40K\Data\Attrib\Abilities</li>
+    <li><b>marker name -</b> A string name associated with a Mission Editor created position marker. In some instances a
+        <i>Marker Type</i> is also requested, for which refer to the ME and what kind of marker you placed. In most
+        instances the type is simply [ &quot;basic_marker&quot; ]</li>
+    <li><b>marker ID</b> - The underlying ID value that the marker name refers to. Use Marker_FromName( ) to derive an
+        ID when one is not known.</li>
+    <li><b>position</b> - A Lua table that is looking for something of the structure [ { x = 0, y = 0, z = 0} ]. This
+        example would define a point at the center of the map. The function Util_ScarPos( ) can be used to provide the
+        appropriate format to a desired point.</li>
+</ul>
+<h2>Special Scar Commands</h2>
+<h3>Scar_AddInit( LuaFunction func )</h3>
+<h3>Scar_RemoveInit( LuaFunction func )</h3>
+<h2>Conventions</h2>
+<p class="c1">· -- comment<br>
+· --[[ Block Comment ]]<br>
+· -------------------------------------------------<br>
+· --[[ BLOCKS OF CODE ]]<br>
+· -------------------------------------------------<br>
+· Function_Name - Start function and function name words capitalized.<br>
+· Rule_RuleName - Start game rules functions with &quot;Rule_&quot;<br>
+· sg_sgroupname - Start SGroups with &quot;sg_&quot;<br>
+· eg_egroupname - Start EGroups with &quot;eg_&quot;<br>
+· mkr_markername - Start Marker Names with &quot;mkr_&quot;<br>
+· t_tablename - Start Tables with &quot;t_&quot;<br>
+· g_variablename - Start global variables with &quot;g_&quot; Create these at the top of the file and not in your
+functions.<br>
+· png_pingname - Start ping names with &quot;png_&quot;<br>
+· <b>local</b> variablename - The &quot;local&quot; tag means this variable can only be used in the current function<br>
+· Use <b>true</b> and <b>false</b> instead of <b>1</b> and <b>0</b></p>
+
+</body>
+
+</html>

@@ -1,0 +1,38 @@
+/* style sheet for treeview */
+body {
+	background-color:#DDDDDD;
+}
+#root {
+	color:#000000;
+	background:transparent;
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size:94%;
+	font-weight: bold;
+}
+.subtext {
+	color: #000000;
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size:75%;
+	background:transparent;
+}
+a {
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size:75%;
+	text-decoration:none;
+	color:#330000;
+	background:transparent;
+}
+a:hover {
+	color:#990000;
+	background:transparent;
+}
+a.tracked {
+	color:#000000;
+	background:transparent;
+}
+a.subexpanded {
+	
+}
+a.subclosed {
+	
+}

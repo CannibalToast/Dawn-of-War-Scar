@@ -1,0 +1,112 @@
+﻿-----------------------------------------------------------------------------------------------------------------
+-- Event Sub-Controllers
+--  Quick examples discussing the use of Sub controllers in Scar
+--
+-- (c) 2004 Relic Entertainment 
+--
+--  
+
+
+--
+-- Why do we need sub controllers? - Take the following example
+--
+function NIS()
+        
+    CTRL.Speech_Play( "Hello" )
+        
+    CTRL.Event_Delay( 2 )
+    CTRL.WAIT()
+    
+    -- this line will not get executed until the speech is done.   we need a way to wait on the speech somewhere down the line in the function...
+    
+end
+
+--
+-- How do sub controllers solve this?
+--
+function NIS()
+        
+    CTRL.Speech_Play( "Hello" )
+        
+        CTRL.SUB()
+        
+            CTRL.Event_Delay( 2 )
+            CTRL.WAIT()
+            --this line will get executed in 2 seconds.  the wait ignores the speech because it is in a higher level controller
+            
+            CTRL.Event_Delay( 2 )
+            CTRL.WAIT()
+            --this line will get executed 2 seconds later. still, the parent controllers are ignored
+        
+        CTRL.END()
+        
+    CTRL.WAIT()
+    
+    -- this line will get hit when the speech is done.
+    -- also, if the speech finishes before the delays, then this line will also not get hit until all sub controllers are done
+    
+end
+
+--
+-- Can sub controllers have sub controllers? - Yes - See below
+--
+function NIS()
+        
+    CTRL.Speech_Play( "Hello" )
+        
+        CTRL.SUB()
+        
+            CTRL.Path_Play("mypath")
+            
+                CTRL.SUB()
+                
+                    CTRL.Event_Delay( 2 )
+                    CTRL.WAIT()
+                    
+                    CTRL.Event_Delay( 2 )
+                    CTRL.WAIT()
+                
+                CTRL.END()
+            
+            CTRL.WAIT()
+            
+            -- this line will not get hit until "mypath" is done AND its been at least 4 seconds.
+        
+        CTRL.END()
+        
+    CTRL.WAIT()
+    
+    -- this line will get hit when the speech is done AND "mypath" is done AND its been at least 4 seconds.
+    
+    -- try to avoid going deeper then 2 levels since it makes your script harder to follow.
+    
+    -- the easier this stuff is to follow, the better it is for everyone!
+    
+end
+
+
+
+--
+-- Here are some examples of what you CANNOT do with sub controllers:
+--
+function NIS()
+        
+    CTRL.Speech_Play( "Hello" )
+    CTRL.WAIT()
+        
+        -- it makes no sense to start a sub right after a WAIT
+        -- scar will throw the error: "CTRL.SUB() is only valid after calling a function through a CTRL"            
+        CTRL.SUB()
+        
+            CTRL.Event_Delay( 2 )
+            CTRL.WAIT()
+            
+            CTRL.Event_Delay( 2 )
+            --CTRL.WAIT()
+            
+            -- if you leave out the above WAIT, scar will throw the following error when you call END:
+            --"You need to call CTRL.WAIT() before you can use CTRL.END()"
+            
+        CTRL.END()
+    
+end

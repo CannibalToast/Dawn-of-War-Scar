@@ -1,0 +1,45 @@
+﻿----------------------------------------------------------------------------------------------------------------
+-- SCAR Example Events script
+-- (c) 2004 Relic Entertainment Inc.
+--
+-- This script demonstrates how to create objectives
+
+-- Objective tables - The title_id acts as an objectives unique id.  Use it to get/set the state
+-- These will be global variables in your mission script
+OBJ_CAPTUREPOINT                = { title_id = 400001,  short_desc_id = 400002, help_tip_id = 400003 }
+OBJ_KILLSOMEORKS                = { title_id = 400005,  short_desc_id = 400006, help_tip_id = 400007 }
+OBJ_UPGRADESOMESQUADS   = { title_id = 400009,  short_desc_id = 400010, help_tip_id = 400011 }
+
+function OnInit( )  
+    -- Start off with a primary objective
+    Objective_Add( OBJ_CAPTUREPOINT, true )
+
+    -- This rule will check when OBJ_CAPTUREPOINT is completed
+    Rule_AddInterval( Rule_CheckObj_CapturePoint, 2 )
+end
+
+-- Then in your rules you can check
+function Rule_CheckObj_CapturePoint( )
+    -- check if a strat point is captured
+    if EGroup_IsCapturedByPlayer( "eg_strat_points", g_player1, false ) then
+        
+        -- mark objective as complete - this will issue a event cue icon
+        Objective_SetState( OBJ_CAPTUREPOINT.title_id, OS_Complete )
+
+        -- trigger a nislet or whatever here...
+        --
+
+        -- add the next objective - this will also create an event cue item
+        Objective_Add( OBJ_KILLSOMEORKS, true )                 -- primary objective
+        Objective_Add( OBJ_UPGRADESOMESQUADS, false )       -- secondary objective
+        
+        -- This rule will monitor the next objective and so on...
+        Rule_AddInterval( Rule_CheckObj_KillSomeOrks, 2 )
+        
+        -- we dont need to check for this objective anymore, so we should remove the rule
+        Rule_Remove( Rule_CheckObj_CapturePoint )
+    end
+end
+
+-- register init function
+Scar_AddInit( OnInit )

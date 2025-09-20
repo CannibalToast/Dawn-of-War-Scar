@@ -5,9 +5,6 @@ Dawn of War Scar is a repository dedicated to tools, utilities, or scripts relat
 ## Features
 
 - **SCAR Scripting Utilities**: Resources and scripts to be used within the Dawn of War modding ecosystem.
-- **HTML-based Tools**: Web interfaces for managing, generating, or previewing scripts.
-- **JavaScript Enhancements**: Interactive components to streamline scripting workflows.
-- **CSS Styling**: Clean and simple styling for web-based tools.
 
 ## Getting Started
 
@@ -32,14 +29,8 @@ Contributions are welcome! If you have SCAR scripts, improvements, bug fixes, or
 2. Make your changes.
 3. Submit a pull request with a clear description of your updates.
 
-## License
-
-This project is open source and available under the [MIT License](LICENSE).
-
 ## Credits
 
-Created and maintained by [CannibalToast](https://github.com/CannibalToast).
+Repo Created by [CannibalToast](https://github.com/CannibalToast).
+SCAR Language and documentation provided by Relic Entertainment
 
----
-
-*For Dawn of War fans and modders: Happy scripting!*
